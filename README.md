@@ -1,1 +1,4 @@
 # SystemMonitor
+This project is a BASH script that serves as a system management application for Linux systems. The purpose of this application is to provide to system administrators a powerful command-line tool for obtaining system information such as available memory, cpu temperature, active processes, and network information, and for managing the system. The tool will allow them to create backups of files, connect to wifi networks, stop and start a service, create and manage users, search for files, and send files by email amongst other things.
+
+The application is user-friendly, meaning that it guides the user through every management operation by providing options and expected input, clear indications of failure and success, easy navigation, and a clean user interface which contains coloured text to put emphasis on important information.
