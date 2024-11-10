@@ -52,32 +52,44 @@ listProcesses() {
 
 # Kill a process
 killProcess() {
+	# Read the process ID from the user
 	read -p "Enter the ID of the process you would like to stop: " processID
+	# Check whether the process ID corresponds to an active process
 	ps $processID > /dev/null
 	if [ $? -eq 0 ]; then
 		select signalOpt in "Forceful Kill" "Graceful Kill" "Cancel"
 		do
 			case $signalOpt in
 				"Forceful Kill")
+					# The 'kill' command is used to stop a process
+					# The -9 option is used to specify signal 9, SIGKILL which
+					# forcefully kills a process
 					kill -9 $processID
 					echo "The process has been forcefully killed!"
 					break
 					;;
 				"Graceful Kill")
+					# The -15 option is used to specify signal 15, SIGTERM which
+					# gracefully kills a process
 					kill -15 $processID
 					echo "The process has been gracefully killed!"
 					;;
 				"Cancel")
+					# Cancel the operation
 					echo "The operation has been cancelled!"
 					break
 					;;
 				*)
+					# Notify the user of the invalid option
 					echo "Invalid Option!"
 					;;
 			esac
+			# Make the REPLY variable empty to force the select statement to reprint the menu
 			REPLY=
 		done
 	else
+		# Notify the user that the processID entered does not 
+		# correspond to an active process
 		echo "The process with id $processID does not exist!"
 	fi	
 }
@@ -92,6 +104,7 @@ PS3="Please select an option: "
 # Print a menu containing all available options and request the user to choose
 select option in "${options[@]}"
 do
+	# Execute the appropriate action according to the user's choice
 	case "$option" in
 		"Memory Status")
 			getMemoryStatus
