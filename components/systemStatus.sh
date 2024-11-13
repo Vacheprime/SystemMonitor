@@ -25,6 +25,10 @@ checkCPUTemperature () {
 		return 1
 	fi
 	# The 'inxi -s' command is used to display the temperature of the CPU and GPU
+	# The 'grep' command is used to search for the CPU temperature using a regex
+	# The -P option is used to indicate PERL regex functionalities
+	# The -o option is used to print only the matching part of the regex and not the
+	# whole line
 	temp=$(inxi -s | grep -Po "(?<=cpu:\s)\d+.\d")
 	# Define the CPU temperature limit
 	limit=70
@@ -50,6 +54,7 @@ listProcesses() {
 	ps aux | less -S
 }
 
+# TODO Check if 'kill' command completes successfully
 # Kill a process
 killProcess() {
 	# Read the process ID from the user
@@ -73,6 +78,7 @@ killProcess() {
 					# gracefully kills a process
 					kill -15 $processID
 					echo "The process has been gracefully killed!"
+					break
 					;;
 				"Cancel")
 					# Cancel the operation
