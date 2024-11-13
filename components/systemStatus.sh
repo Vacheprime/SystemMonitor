@@ -10,7 +10,9 @@ function getMemoryStatus() {
 	# The -h option prints the amounts in human readable format
 	# The --si option prints the amounts using kilo, mega, giga instead of kibi, mebi, gibi
 	# The 'awk' command is used to extract the amounts from the output based on index
-	free -Lh --si | awk '{printf "Swap Memory Usage: %s\nCache Memory Usage: %s\nMemory Usage: %s\nAvailableMemory: %s\n", $2, $4, $6, $8}'
+	memoryUsage=$(free -h --si)
+	echo "$memoryUsage" | awk 'NR==3 {printf "Swap Memory Usage: %s\n", $2}'
+	echo "$memoryUsage" | awk 'NR==2 {printf "Cache Memory Usage: %s\nMemory Usage: %s\nAvailableMemory: %s\n", $6, $3, $7}'
 }
 
 # Check the CPU Temperature, and sound an alarm if the temperature
@@ -18,10 +20,10 @@ function getMemoryStatus() {
 checkCPUTemperature () {
 	# The 'inxi -s' command is used to display the temperature of the CPU and GPU
 	# Check if 'inxi' is installed first
-	which inxi > /dev/null
-	if [ $? -eq 1 ]; then
+	
+	if ! which inxi > /dev/null; then
 		echo "Error: The 'inxi' command must be installed to check the CPU temperature!"
-		exit 1
+		return 1
 	fi
 	# The 'awk' command is used to extract the fourth column from the second line of input
 	# which corresponds to the CPU's temperature
