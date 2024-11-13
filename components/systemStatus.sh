@@ -18,16 +18,14 @@ function getMemoryStatus() {
 # Check the CPU Temperature, and sound an alarm if the temperature
 # is greater than 70C
 checkCPUTemperature () {
-	# The 'inxi -s' command is used to display the temperature of the CPU and GPU
+	# Finding the CPU temperature requires the 'inxi' command
 	# Check if 'inxi' is installed first
-	
 	if ! which inxi > /dev/null; then
 		echo "Error: The 'inxi' command must be installed to check the CPU temperature!"
 		return 1
 	fi
-	# The 'awk' command is used to extract the fourth column from the second line of input
-	# which corresponds to the CPU's temperature
-	temp=$(inxi -s | awk 'NR == 2 {print $4}')
+	# The 'inxi -s' command is used to display the temperature of the CPU and GPU
+	temp=$(inxi -s | grep -Po "(?<=cpu:\s)\d+.\d")
 	# Define the CPU temperature limit
 	limit=70
 	# Use 'bc' to compare decimal numbers
