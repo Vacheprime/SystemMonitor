@@ -72,22 +72,25 @@ killProcess() {
 
 	# Check whether the process ID corresponds to an active process
 	if ps "$processID" > /dev/null; then
+		# Get the User ID of the user that started the process to kill
+		# ps -f n lists information about the process ID using numerical values
+		# for the UserID
+		# --pid selects the process based on process ID
+		# The 'awk' command is used to retrieve the UserID
+		puid=$(ps -f n --pid "$processID" | awk 'NR==2 {print $1}')
 		select signalOpt in "Forceful Kill" "Graceful Kill" "Cancel"
 		do
 			case $signalOpt in
 				"Forceful Kill")
-					# Get the User ID of the user that started the process to kill
-					# ps -f n lists information about the process ID using numerical values
-					# for the UserID
-					# --pid selects the process based on process ID
-					# The 'awk' command is used to retrieve the UserID
-					puid=$(ps -f n --pid "$processID" | awk 'NR==2 {print $1}')
 					if [ $cuid -eq $puid ]; then
 						# The 'kill' command is used to stop a process
 						# The -9 option is used to specify signal 9, SIGKILL, which
 						# forcefully kills a process
-						if kill -9 $processID; then
+						kill -9 $processID
+						if ! ps "$processID" > /dev/null; then
 							echo "The process has been forcefully killed!"
+						else
+							echo "The process could not be killed!"
 						fi
 					else
 						echo "The current user does not have permission to kill this process."
@@ -97,7 +100,8 @@ killProcess() {
 							break
 						fi
 
-						if sudo kill -9 $processID; then
+						sudo kill -9 $processID
+						if ! ps "$processID" > /dev/null; then
 							echo "The process has been forcefully killed!"
 						else
 							echo "The process could not be killed!"
@@ -106,10 +110,30 @@ killProcess() {
 					break
 					;;
 				"Graceful Kill")
-					# The -15 option is used to specify signal 15, SIGTERM which
-					# gracefully kills a process
-					kill -15 $processID
-					echo "The process has been gracefully killed!"
+					if [ $cuid -eq $puid ]; then
+						# The -15 option is used to specify signal 15, SIGTERM which
+						# gracefully kills a process
+						kill -15 $processID
+						if ! ps "$processID" > /dev/null; then
+							echo "The process has been gracefully killed!"
+						else
+							echo "The process could not be killed!"
+						fi
+					else
+						echo "The current user does not have permission to kill this process."
+						read -p "Would you like to try with root permissions? [y/n]: " doTry
+						if [ "$doTry" != "y" ]; then
+							echo "The operation has been cancelled!"
+							break
+						fi
+
+						sudo kill -15 $processID
+						if ! ps "$processID" > /dev/null; then
+							echo "The process has been gracefully killed!"
+						else
+							echo "The process could not be killed!"
+						fi
+					fi
 					break
 					;;
 				"Cancel")
