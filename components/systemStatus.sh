@@ -35,7 +35,9 @@ checkCPUTemperature () {
 	# Use 'bc' to compare decimal numbers
 	if [ $(echo "$temp > $limit" | bc ) -eq 1 ]; then
 		echo "[WARNING] The CPU temperature is greater than $limit°C!"
-		# TODO: Produce a beeping noise
+		# TODO: Test
+		# Beeping noise code taken from https://unix.stackexchange.com/questions/1974/how-do-i-make-my-pc-speaker-beep
+		$( $( speaker-test -t sine -f 1000 )& pid=$! ; sleep 0.1s ; kill -9 $pid) &> /dev/null
 	else
 		# Display the CPU temperature
 		echo "The CPU temperature is at $temp°C"
@@ -57,20 +59,50 @@ listProcesses() {
 # TODO Check if 'kill' command completes successfully
 # Kill a process
 killProcess() {
+	# Get the current user's ID
+	cuid=$(id -u)
 	# Read the process ID from the user
 	read -p "Enter the ID of the process you would like to stop: " processID
+	
+	# PID 1 is a process that cannot be killed.
+	if [ $processID -eq 1 ]; then
+		echo "PID 1 cannot be killed!"
+		return 1	
+	fi	
+
 	# Check whether the process ID corresponds to an active process
-	ps $processID > /dev/null
-	if [ $? -eq 0 ]; then
+	if ps "$processID" > /dev/null; then
 		select signalOpt in "Forceful Kill" "Graceful Kill" "Cancel"
 		do
 			case $signalOpt in
 				"Forceful Kill")
-					# The 'kill' command is used to stop a process
-					# The -9 option is used to specify signal 9, SIGKILL which
-					# forcefully kills a process
-					kill -9 $processID
-					echo "The process has been forcefully killed!"
+					# Get the User ID of the user that started the process to kill
+					# ps -f n lists information about the process ID using numerical values
+					# for the UserID
+					# --pid selects the process based on process ID
+					# The 'awk' command is used to retrieve the UserID
+					puid=$(ps -f n --pid "$processID" | awk 'NR==2 {print $1}')
+					if [ $cuid -eq $puid ]; then
+						# The 'kill' command is used to stop a process
+						# The -9 option is used to specify signal 9, SIGKILL, which
+						# forcefully kills a process
+						if kill -9 $processID; then
+							echo "The process has been forcefully killed!"
+						fi
+					else
+						echo "The current user does not have permission to kill this process."
+						read -p "Would you like to try with root permissions? [y/n]: " doTry
+						if [ "$doTry" != "y" ]; then
+							echo "The operation has been cancelled!"
+							break
+						fi
+
+						if sudo kill -9 $processID; then
+							echo "The process has been forcefully killed!"
+						else
+							echo "The process could not be killed!"
+						fi
+					fi
 					break
 					;;
 				"Graceful Kill")
