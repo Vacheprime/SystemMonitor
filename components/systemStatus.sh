@@ -35,7 +35,6 @@ checkCPUTemperature () {
 	# Use 'bc' to compare decimal numbers
 	if [ $(echo "$temp > $limit" | bc ) -eq 1 ]; then
 		echo "[WARNING] The CPU temperature is greater than $limit°C!"
-		# TODO: Test
 		# Beeping noise code taken from https://unix.stackexchange.com/questions/1974/how-do-i-make-my-pc-speaker-beep
 		$( $( speaker-test -t sine -f 1000 )& pid=$! ; sleep 0.1s ; kill -9 $pid) &> /dev/null
 	else
@@ -56,7 +55,6 @@ listProcesses() {
 	ps aux | less -S
 }
 
-# TODO Check if 'kill' command completes successfully
 # Kill a process
 killProcess() {
 	# Get the current user's ID
