@@ -28,7 +28,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
 		nmcli dev wifi | awk '{print $2}'> networks.txt
 		uniq -u networks.txt
 		echo "enter network"
-		read $netName
+		read netName
 		echo "enter password"
 		read pass
                 nmcli dev wifi connect $netName  password $pass
