@@ -32,14 +32,16 @@ checkCPUTemperature () {
 	temp=$(inxi -s | grep -Po "(?<=cpu:\s)\d+.\d")
 	# Define the CPU temperature limit
 	limit=70
+	# Display the CPU temperature
+	echo "The CPU temperature is at $temp°C"
 	# Use 'bc' to compare decimal numbers
 	if [ $(echo "$temp > $limit" | bc ) -eq 1 ]; then
 		echo "[WARNING] The CPU temperature is greater than $limit°C!"
 		# Beeping noise code taken from https://unix.stackexchange.com/questions/1974/how-do-i-make-my-pc-speaker-beep
-		$( $( speaker-test -t sine -f 1000 )& pid=$! ; sleep 0.1s ; kill -9 $pid) &> /dev/null
-	else
-		# Display the CPU temperature
-		echo "The CPU temperature is at $temp°C"
+		for i in $(seq 0 3); do
+			$( speaker-test -c2 -t sine -f 1000 & pid=$! ; sleep 0.1s ; kill -9 $pid) &> /dev/null
+			sleep 0.1s
+		done
 	fi
 }
 
