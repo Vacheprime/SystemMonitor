@@ -17,10 +17,10 @@ do
         echo "User $name has been added"
         fi
         ;;
-        giveRootPermission)
-        echo "Enter Username"
-        read name
-        $name ALL=(ALL:ALL)ALL
+	giveRootPermission)
+	echo "Enter Username"
+	read name
+	sudo usermod -aG root $name
         ;;
         deleteUser)
         echo "Enter Username"
