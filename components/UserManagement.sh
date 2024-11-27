@@ -20,7 +20,7 @@ do
         giveRootPermission)
         echo "Enter Username"
         read name
-        $name ALL=(ALL:ALL)ALL
+        echo "$name ALL=(ALL:ALL) ALL" | sudo tee -a /etc/sudoers > /dev/null
         ;;
         deleteUser)
         echo "Enter Username"
@@ -70,5 +70,3 @@ do
 
         esac
 done
-
-
