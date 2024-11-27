@@ -57,6 +57,16 @@ listProcesses() {
 	ps aux | less -S
 }
 
+# List the currently active processes in a minimal fashion for the killProcess function
+listProcessesMinimal() {
+	# Note: pr command to display as table
+	# Note: processes in [] are kernel processes
+	fullOutput=$(ps aux)
+	pids=$(echo "$fullOutput" | tail -n +2 | awk '{printf "%s\n", $2}')
+	processNames=$(echo "$fullOutput" | tail -n +2 | awk '{printf "%s\n", $11}' | sed "s/\/.*\]/\]/" | grep -Po "((?<=/)?[^/]*$)")
+
+}
+
 # Kill a process
 killProcess() {
 	# Get the current user's ID
