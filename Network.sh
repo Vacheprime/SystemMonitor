@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "select an opiton"
+echo "select an option"
 select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
         do
                 case $options in
@@ -32,7 +32,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
                 sudo ifconfig $Netcard $IP 2> /dev/null
                 if [ $? -ne 0 ]
                 then
-                echo "input are invalid"
+                echo "inputs are invalid"
                 fi
                 ;;
                 SelectNetwork)
@@ -46,7 +46,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
                 nmcli dev wifi connect $netName  password $pass 2> /dev/null
                 if [ $? -ne 0 ]
                 then
-                echo "input are invalid"
+                echo "inputs are invalid"
                 fi
                 ;;
 
