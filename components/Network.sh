@@ -25,7 +25,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
                 fi
                 ;;
                 SetIPaddress)
-                echo "enter  an IPaddress "
+                echo "enter  an IP address "
                 read IP
                 echo "enter Net Card"
                 read Netcard
