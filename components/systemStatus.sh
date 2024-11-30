@@ -59,16 +59,26 @@ listProcesses() {
 
 # List the currently active processes in a minimal fashion for the killProcess function
 listProcessesMinimal() {
-	# Note: pr command to display as table
+	# TODO: ADD color codes for root, other, current
 	# Note: processes in [] are kernel processes
+	# Get all of the currently running processes
 	fullOutput=$(ps aux)
+	# Extract the list of all process Ids
 	pids=$(echo "$fullOutput" | tail -n +2 | awk '{printf "%s\n", $2}')
-	processNames=$(echo "$fullOutput" | tail -n +2 | awk '{printf "%s\n", $11}' | sed "s/\/.*\]/\]/" | grep -Po "((?<=/)?[^/]*$)")
-
+	# Extract the list of all command names without the full path
+	# and without any arguments to keep the interface clean
+	commandNames=$(
+		echo "$fullOutput" |
+		tail -n +2 | # Skip the header table row 
+		awk '{printf "%s\n", $11}' | # Extract column 11, command names
+		grep -Po '^\[.*\]$|(?<=/)[^/]+?$|^[^/]+?$'
+	)
+	paste -d' ' <(echo -e "$pids") <(echo -e "$commandNames") | column
 }
 
 # Kill a process
 killProcess() {
+	listProcessesMinimal
 	# Get the current user's ID
 	cuid=$(id -u)
 	# Read the process ID from the user
