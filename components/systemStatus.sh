@@ -71,19 +71,26 @@ listProcessesMinimal() {
 		echo "$fullOutput" |
 		tail -n +2 | # Skip the header table row 
 		awk '{printf "%s\n", $11}' | # Extract column 11, command names
-		grep -Po '^\[.*\]$|(?<=/)[^/]+?$|^[^/]+?$'
+		grep -Po '^\[.*\]$|(?<=/)[^/]+?$|^[^/]+?$' # Extract the command names without full path
 	)
-	paste -d' ' <(echo -e "$pids") <(echo -e "$commandNames") | column
+	# Combine the pids and command name and display as columns
+	paste -d' ' <(echo -e "$pids") <(echo -e "$commandNames") | column 
+	echo -e "\n"
 }
 
 # Kill a process
 killProcess() {
+	# List the processes
 	listProcessesMinimal
 	# Get the current user's ID
 	cuid=$(id -u)
 	# Read the process ID from the user
 	read -p "Enter the ID of the process you would like to stop: " processID
-	
+	# Check if user input is valid
+	if ! [[ "$processID" =~ ^[0-9]+$ ]]; then
+		echo "You must enter a valid PID!"
+		return 1
+	fi
 	# PID 1 is a process that cannot be killed.
 	if [ $processID -eq 1 ]; then
 		echo "PID 1 cannot be killed!"
@@ -91,7 +98,7 @@ killProcess() {
 	fi	
 
 	# Check whether the process ID corresponds to an active process
-	if ps "$processID" > /dev/null; then
+	if ps --pid "$processID" &> /dev/null; then
 		# Get the User ID of the user that started the process to kill
 		# ps -f n lists information about the process ID using numerical values
 		# for the UserID
