@@ -18,11 +18,16 @@ findFileInHomeDir(){
 	  fi
 }
 
-
 #• Display the 10 largest files in the user's home directory.
+# Ignore the .dbus permissions
+# -exec stat: exec allows 'find' to use 'stat' on each file that is found
+# 'stat' displays the information on each file found:
+        # %s: size in bytes
+        # %n: name of the full path
+# {}: ensures that '-exec' knows where to insert the path of the file. 'stat' would not know which file to act upon without it.
 displayTenLargestFiles(){
    echo "10 Largest Files: "
-	find "$1" -type f ! -path "$1/$username/.dbus" -exec stat --format="%s %n" {} + 2>/dev/null | sort -rh | head -n 10
+	find "$1" -type f ! -path "$1/$username/.dbus" -exec stat --format="%s %n" {} + 2>/dev/null | sort -rh | head
 }
 
 #• Display the 10 oldest files in the user's home directory.
@@ -31,7 +36,7 @@ displayTenOldestFiles(){
 	# %T+: Prints the last modification time of the file (format: year-month-day+hours:minutes:seconds)
 	# %p: Prints the full path of the file
 	# 2>dev/null: Suppress the permission denied message, even when the command prints the expected results
-	find "$1" -type f -printf '%T+ %p\n' 2>/dev/null | sort | head -10
+	find "$1" -type f -printf '%T+ %p\n' 2>/dev/null | sort | head
 }
 
 #• Accept an email address and a file name from the user, and send the file as an email attachment
