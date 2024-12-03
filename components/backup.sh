@@ -187,7 +187,7 @@ function createNewBackupSchedule() {
 			return 1
 		fi
 		# Add the backup job to the root's crontab
-		((sudo crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
+		((sudo crontab -l; sudo echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | sudo crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
 			echo -e "\nFailed to create the backup scheduled!\n"
@@ -197,6 +197,43 @@ function createNewBackupSchedule() {
 	echo -e "\nSuccessfully added backup schedule!\n"
 }
 
+# Display the current backup schedules created by the system
+function displayCurrentBackupSchedules() {
+	echo -e "\nVIEWING BACKUP SCHEDULES\n"
+	# Get the backup schedules for this user
+	userSchedules=$(
+		crontab -l |
+		grep "SYSBACKUP"
+	)
+
+	# Prompt the user if he wants to see root backups
+	echo "The current user does not have the privileges to view root backup schedules."
+	read -p "Would you like to view backup schedules of the root account? [y/n]: " doTry
+	if [ "$doTry" == "y" ]; then
+		# Get the backup schedules created as root
+		rootSchedules=$(sudo crontab -l 2>&1)
+		# Check if command executed successfully
+		if [ $? -eq 0 ]; then
+			rootSchedules=$(echo "$rootSchedules" | grep "SYSBACKUP")
+			echo "$rootSchedules" | awk '{ printf "\n(Root) Schedule %d:\nFile to backup: %s\nBackup Location: %s\n", NR, $12, $13 }'
+		else
+			# Check if the root account has no crontab or if authentication failed.
+			if [ "$rootSchedules" == "no crontab for root" ]; then
+				echo -e "\nNo backup schedules set for root."
+			else
+				echo -e "\nCould not fetch backups created as root."
+			fi
+		fi
+	fi
+
+	# Display schedules for users
+	if [ $(echo -n "$userSchedules" | wc -l) -ne 0 ]; then
+		echo $userSchedules | awk '{ printf "\n(User) Schedule %d:\nFile to backup: %s\nBackup Location: %s\n", NR, $12, $13 }'
+	else
+		echo -e "\nNo backup schedules set for user."
+	fi
+	echo ""
+}
 
 # Main Loop
 # Define the list of available options
@@ -212,7 +249,7 @@ do
 		"Create New Backup Schedule")
 			createNewBackupSchedule
 			;;
-		"Display Current Backup Schedule")
+		"Display Current Backup Schedules")
 			displayCurrentBackupSchedules
 			;;
 		"Display Last Backup Process")
