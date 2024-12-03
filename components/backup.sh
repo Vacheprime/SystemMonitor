@@ -113,6 +113,11 @@ function createNewBackupSchedule() {
 		return 1
 	fi
 
+	# Format the folder path
+	if ! [[ "$absFolderPath" =~ /$ ]]; then
+		absFolderPath+="/"
+	fi
+
 	# Validate the hour
 	if ! [[ "$hour" =~ ^[0-9]+$|^\*$ ]]; then
 		echo -e "\nYou must enter a number for the hour!\n"
@@ -173,7 +178,7 @@ function createNewBackupSchedule() {
 
 	# Check if user has write permissions
 	if [[ -w "$absFilePath" && -w "$absFolderPath" ]]; then
-		((crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
+		((crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
 			echo -e "\nFailed to create the backup scheduled!\n"
@@ -187,7 +192,7 @@ function createNewBackupSchedule() {
 			return 1
 		fi
 		# Add the backup job to the root's crontab
-		((sudo crontab -l; sudo echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | sudo crontab -) &> /dev/null
+		((sudo crontab -l; sudo echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUp \"$absFilePath\" \"$absFolderPath\"") | sudo crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
 			echo -e "\nFailed to create the backup scheduled!\n"
@@ -215,7 +220,45 @@ function displayCurrentBackupSchedules() {
 		# Check if command executed successfully
 		if [ $? -eq 0 ]; then
 			rootSchedules=$(echo "$rootSchedules" | grep "SYSBACKUP")
-			echo "$rootSchedules" | awk '{ printf "\n(Root) Schedule %d:\nFile to backup: %s\nBackup Location: %s\n", NR, $12, $13 }'
+
+			# Get the backup folders 
+			backupFolders=$(
+			echo "$rootSchedules" |
+				cut -f13 -d" " |
+				sed "s/\"//g"
+			)
+			# Get the backup filenames
+			backupFiles=$(
+			echo "$rootSchedules" |
+				cut -f12 -d" " |
+				grep -Po "[^/]+\"$" | 
+				sed "s/\"//g"
+			)
+			# Combine the paths of folder and file
+			backupFiles=$(paste <(echo "$backupFolders") <(echo "$backupFiles") -d "")
+
+			# Get the last modification time of the backup files
+			backupTimes=""
+			for file in $backupFiles
+			do
+				time=$(sudo stat --format='%y' "$file")
+				if [ $? -ne 0 ]; then
+					backupTimes+="Never."
+				else
+					backupTimes+=$(echo "$time" | cut -d" " -f1)
+				fi
+				backupTimes+=$'\n'
+			done
+
+			# Remove the trailing newline
+			backupTimes=$(echo -n "$backupTimes")
+
+			# Combine the dates to the root schedule strings so its accessible
+			# via awk
+			rootSchedules=$(paste <(echo "$rootSchedules") <(echo "$backupTimes") -d" " 2> /dev/null)
+
+			# Print the root schedules
+			echo "$rootSchedules" | awk '{ printf "\n(Root) Schedule %d:\nFile to backup: %s\nBackup Location: %s\nLast backup time: %s\n", NR, $12, $13, $14 }'
 		else
 			# Check if the root account has no crontab or if authentication failed.
 			if [ "$rootSchedules" == "no crontab for root" ]; then
@@ -227,8 +270,45 @@ function displayCurrentBackupSchedules() {
 	fi
 
 	# Display schedules for users
-	if [ $(echo -n "$userSchedules" | wc -l) -ne 0 ]; then
-		echo $userSchedules | awk '{ printf "\n(User) Schedule %d:\nFile to backup: %s\nBackup Location: %s\n", NR, $12, $13 }'
+	if [ $(echo -n "$userSchedules" | wc -c) -ne 0 ]; then
+		# Get the backup folders 
+		backupFolders=$(
+			echo "$userSchedules" |
+			cut -f13 -d" " |
+			sed "s/\"//g"
+		)
+		# Get the backup filenames
+		backupFiles=$(
+			echo "$userSchedules" |
+			cut -f12 -d" " |
+			grep -Po "[^/]+\"$" | 
+			sed "s/\"//g"
+		)
+		# Combine the paths of folder and file
+		backupFiles=$(paste <(echo "$backupFolders") <(echo "$backupFiles") -d "")
+
+		# Get the last modification time of the backup files
+		backupTimes=""
+		for file in $backupFiles
+		do
+			time=$(stat --format='%y' "$file")
+			if [ $? -ne 0 ]; then
+				backupTimes+="Never."
+			else
+				backupTimes+=$(echo "$time" | cut -d" " -f1)
+			fi
+			backupTimes+=$'\n'
+		done
+
+		# Remove the trailing newline
+		backupTimes=$(echo -n "$backupTimes")
+
+		# Combine the dates to the user schedule strings so its accessible
+		# via awk
+		userSchedules=$(paste <(echo "$userSchedules") <(echo "$backupTimes") -d" " 2> /dev/null)
+
+		# Print the user schedules
+		echo "$userSchedules" | awk '{ printf "\n(User) Schedule %d:\nFile to backup: %s\nBackup Location: %s\nLast backup time: %s\n", NR, $12, $13, $14 }'
 	else
 		echo -e "\nNo backup schedules set for user."
 	fi
@@ -237,7 +317,7 @@ function displayCurrentBackupSchedules() {
 
 # Main Loop
 # Define the list of available options
-options=("Create New Backup Schedule" "Display Current Backup Schedules" "Display Last Backup Processes" "Go Back to Main Menu")
+options=("Create New Backup Schedule" "Display Current Backup Schedules" "Go Back to Main Menu")
 
 # Customise the input prompt
 PS3=$'\nPlease select an option: '
@@ -251,8 +331,6 @@ do
 			;;
 		"Display Current Backup Schedules")
 			displayCurrentBackupSchedules
-			;;
-		"Display Last Backup Process")
 			;;
 		"Go Back to Main Menu")
 			exit 0
