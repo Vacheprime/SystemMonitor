@@ -70,7 +70,7 @@ function validateMonthDay() {
 }
 
 # Create a new backup schedule 
-function CreateNewBackupSchedule() {
+function createNewBackupSchedule() {
 	# Get all of the required user input
 	echo -e "\n--- File and Backup Folder Paths ---\n"
 	echo -e -n "\tEnter the absolute file path of file to backup: "
@@ -173,7 +173,7 @@ function CreateNewBackupSchedule() {
 
 	# Check if user has write permissions
 	if [[ -w "$absFilePath" && -w "$absFolderPath" ]]; then
-		((crontab -l; echo "$minute $hour $monthDay $month $weekDay rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
+		((crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
 			echo -e "\nFailed to create the backup scheduled!\n"
@@ -187,7 +187,7 @@ function CreateNewBackupSchedule() {
 			return 1
 		fi
 		# Add the backup job to the root's crontab
-		((sudo crontab -l; echo "$minute $hour $monthDay $month $weekDay rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
+		((sudo crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUtp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
 			echo -e "\nFailed to create the backup scheduled!\n"
@@ -210,9 +210,10 @@ select option in "${options[@]}";
 do
 	case $option in
 		"Create New Backup Schedule")
-			CreateNewBackupSchedule
+			createNewBackupSchedule
 			;;
 		"Display Current Backup Schedule")
+			displayCurrentBackupSchedules
 			;;
 		"Display Last Backup Process")
 			;;
