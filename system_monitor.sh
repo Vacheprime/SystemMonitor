@@ -17,22 +17,52 @@ submenu() {
         options=("Go Back to Main Menu" "System Status" "Backup" "Network" "Services" "User Management" "File Management" "Exit")
         select option in "${options[@]}"; do
             case $REPLY in
-                1) return ;;                                            # Return to Main Menu
-                2)	chmod +x systemStatus.sh
-			./systemStatus.sh ;;                 		# System Status
+                1) # Return to Main Menu
+		   return
+		   ;;
+                2) # System Status
+		   chmod 770 systemStatus.sh;
+		   ./systemStatus.sh;
+		   break
+		   ;;
                 3) # Backup File
-                4)	chmod +x Network.sh
-			./Network.sh                                    # Network
+		   echo "Backup is being built...";
+                   break
+		   ;;
+		4) # Network
+		   chmod 770 Network.sh;
+		   ./Network.sh;
+		   break
+		   ;;
                 5) # System Services
-                6) ./UserManagement.sh
-                7) ./fileManagement.sh
-                8) exit 0 ;;                                            # Exit the script
-                *) echo -e "${RED}Invalid option. Try again.${RESET}"; break ;;
+		   echo "System Services are being built...";
+                   break
+		   ;;
+		6) # User Management
+		   chmod 770 UserManagement.sh
+		   ./UserManagement.sh;
+		   break
+		   ;;
+                7) # File management
+		   chmod 770 fileManagement.sh
+		   ./fileManagement.sh;
+		   break
+		   ;;
+                8) # Exit the script
+		   echo -e "${YELLOW} See you later, user!${RESET}"
+		   exit 0;
+		   ;;
+                *) # Default
+		   echo -e "${RED}Invalid option. Make sure you typed the number to the corresponding option that you'd like to choose${RESET}"
+		   break
+		   ;;
             esac
         done
     done
 }
 
+# start?
+echo -e "${YELLOW}WELCOME TO OUR SYSTEM MONITOR!${RESET}"
 # Main Menu
 while true; do
     echo -e "\n${PURPLE}MAIN MENU${RESET}"
@@ -40,9 +70,17 @@ while true; do
     options=("CMD1" "Exit")
     select option in "${options[@]}"; do
         case $REPLY in
-            1) submenu; break ;;  # Call CMD1 Submenu
-            2) exit 0 ;;          # Exit the script
-            *) echo -e "${RED}Invalid option. Try again.${RESET}"; break ;;
+            1) # Call the submenu
+	       submenu;
+	       break
+	       ;;
+            2) # Exit the program
+	       echo -e "${YELLOW}See you later, user!${RESET}"
+	       exit 0
+	       ;;
+            *) echo -e "${RED}Invalid option. Try again.${RESET}";
+	       break
+	       ;;
         esac
     done
 done
