@@ -71,8 +71,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
                 ;;
                 SelectNetwork)
                 echo -e "\e[1;34m List of networks \e[0m"
-                sudo nmcli dev wifi |sort|awk '{print $2}'> networks.txt
-                sudo uniq -u networks.txt
+                sudo nmcli dev wifi |sort|uniq|awk '{print $2}'
                 echo -e "\e[1;34m enter network"
                 read netName
                 echo -e "\e[1;34m enter password \e[0m"
