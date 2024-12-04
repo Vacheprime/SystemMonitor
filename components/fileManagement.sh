@@ -103,65 +103,61 @@ sendFileAsEmailAttachment(){
 
 # Accept the username as input
 while true; do
-read -p "${CYAN}Enter the username (or enter 'Exit' to leave the program): ${RESET}" username
+	read -p "${CYAN}Enter the username (or enter 'Exit' to leave the program): ${RESET}" username
 
-if [[ "$username" == "Exit" ]]; then
-   echo "${YELLOW}Exiting the Program...${RESET}"
-   exit 0
-fi
-# Check if the user exists
-if id "$username" &>/dev/null; then
-   # If the username exists, get the home directory by extracting it from /etc/passwd
-   # -d option with cut command: Seperate the fields of the etc/passwd with the colon delimeter
-   # f6: extract the home directory ( which is the 6th field inside etc/passwd)
-   home_dir=$(grep "^$username:" /etc/passwd | cut -d: -f6
-   # Check if the home directory exists
-   if  [ -d "$home_dir" ]; then
-	# Run this menu until the use chooses to exit
-	while true; do
-	# Prompt the user with message asking to choose an option in the file management program
-	PS3="${BLUE}Please select an option: ${RESET}"
-	select option in "Go Back to Menu" "Search For a File" "Find the 10 Largest Files" "Find the 10 Oldest Files" "Send File as An Email Attachment" "Exit";
-
-	    do
-	    	 case $option in
-			"Go Back to Menu")
-				exit 0
-				;;
-			"Search For a File")
-				findFileInHomeDir "$home_dir"
-				break
-				;;
-			"Find the 10 Largest Files")
-				displayTenLargestFiles "$home_dir"
-				break
-				;;
-			"Find the 10 Oldest Files")
-				displayTenOldestFiles "$home_dir"
-				break
-				;;
-			"Send File as An Email Attachment")
-				sendFileAsEmailAttachment "$home_dir"
-				break
-				;;
-			"Exit")
-				echo "${YELLOW}Exiting file management program...${RESET}"
-				exit 0
-				;;
-			*)
-				echo "${RED}Invalid Option. Please try again.${RESET}"
-				;;
-	   	 esac
-	    done
-	done
-   else
-	echo "${RED}Home directory does not exists${RESET}"
-   fi
-
-else
-
-   echo "${RED}User does not exists${RESET}"
-
-fi
+	if [[ "$username" == "Exit" ]]; then
+		echo "${YELLOW}Exiting the Program...${RESET}"
+		exit 0
+	fi
+	# Check if the user exists
+	if id "$username" &>/dev/null; then
+		# If the username exists, get the home directory by extracting it from /etc/passwd
+		# -d option with cut command: Seperate the fields of the etc/passwd with the colon delimeter
+		# f6: extract the home directory ( which is the 6th field inside etc/passwd)
+		home_dir=$(grep "^$username:" /etc/passwd | cut -d: -f6
+		# Check if the home directory exists
+		if  [ -d "$home_dir" ]; then
+			# Run this menu until the use chooses to exit
+			while true; do
+				# Prompt the user with message asking to choose an option in the file management program
+				PS3="${BLUE}Please select an option: ${RESET}"
+				select option in "Go Back to Menu" "Search For a File" "Find the 10 Largest Files" "Find the 10 Oldest Files" "Send File as An Email Attachment" "Exit";
+				do
+					case $option in
+						"Go Back to Menu")
+							exit 0
+							;;
+						"Search For a File")
+							findFileInHomeDir "$home_dir"
+							break
+							;;
+						"Find the 10 Largest Files")
+							displayTenLargestFiles "$home_dir"
+							break
+							;;
+						"Find the 10 Oldest Files")
+							displayTenOldestFiles "$home_dir"
+							break
+							;;
+						"Send File as An Email Attachment")
+							sendFileAsEmailAttachment "$home_dir"
+							break
+							;;
+						"Exit")
+							echo "${YELLOW}Exiting file management program...${RESET}"
+							exit 0
+							;;
+						*)
+							echo "${RED}Invalid Option. Please try again.${RESET}"
+							;;
+					esac
+				done
+			done
+		else
+			echo "${RED}Home directory does not exists${RESET}"
+		fi
+	else
+		echo "${RED}User does not exists${RESET}"
+	fi
 done
 #End of the Program
