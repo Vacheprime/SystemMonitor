@@ -142,22 +142,22 @@ if id "$username" &>/dev/null; then
 				break
 				;;
 			"Exit")
-				echo "Exiting file management program..."
+				echo "${YELLOW}Exiting file management program...${RESET}"
 				exit 0
 				;;
 			*)
-				echo "Invalid Option"
+				echo "${RED}Invalid Option. Please try again.${RESET}"
 				;;
 	   	 esac
 	    done
 	done
    else
-	echo "Home directory does not exists"
+	echo "${RED}Home directory does not exists${RESET}"
    fi
 
 else
 
-   echo "User does not exists"
+   echo "${RED}User does not exists${RESET}"
 
 fi
 done
