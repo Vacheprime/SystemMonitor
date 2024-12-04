@@ -188,7 +188,7 @@ function createNewBackupSchedule() {
 	# The rsync command is required to do incremental backups and 
 	# must be installed
 	echo ""
-	if ! bash installCommand.sh "rsync"; then
+	if ! bash components/installCommand.sh "rsync"; then
 	    echo -e "\n${RED}Could not install the 'rsync' command!${RESET}\n"
 	    return 1
 	fi

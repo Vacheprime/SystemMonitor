@@ -54,7 +54,7 @@ displayTenOldestFiles(){
 sendFileAsEmailAttachment(){
 
 	# This will be used in case the user does not have the mutt command installed
-	command_installer=$"./installCommand.sh"
+	command_installer=$"components/installCommand.sh"
 
 	read -p "${CYAN}Enter the email address: ${RESET}" email
 	read -p "${PURPLE}Enter the file name to send as an email attachment: ${RESET}" filename
