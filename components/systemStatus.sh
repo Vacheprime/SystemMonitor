@@ -1,18 +1,29 @@
 #!/bin/bash
 
+## COLOR CONSTANTS
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+PURPLE='\e[35m'
+CYAN='\e[36m'
+RESET='\e[0m'
+##
+
 # System Status Functions
 # Display the swap memory usage, the cached memory, the process memory usage,
 # and the totalavailable memory
 function getMemoryStatus() {
-	echo "Current Memory Usage:"
+	echo -e "\n${PURPLE}Current Memory Usage${RESET}\n"
 	# The 'free' command is used to display the amount of free and used RAM
 	# The -L option prints the results on one line instead of a table
 	# The -h option prints the amounts in human readable format
 	# The --si option prints the amounts using kilo, mega, giga instead of kibi, mebi, gibi
 	# The 'awk' command is used to extract the amounts from the output based on index
 	memoryUsage=$(free -h --si)
-	echo "$memoryUsage" | awk 'NR==3 {printf "Swap Memory Usage: %s\n", $2}'
-	echo "$memoryUsage" | awk 'NR==2 {printf "Cache Memory Usage: %s\nMemory Usage: %s\nAvailableMemory: %s\n", $6, $3, $7}'
+	echo "$memoryUsage" | awk 'NR==3 {printf "\033[36mSwap Memory Usage: \033[32m%s\033[0m\n", $2}'
+	echo "$memoryUsage" | awk 'NR==2 {printf "\033[36mCache Memory Usage: \033[32m%s\033[36m\nMemory Usage: \033[32m%s\033[36m\nAvailableMemory: \033[32m%s\033[0m\n", $6, $3, $7}'
+	echo ""
 }
 
 # Check the CPU Temperature, and sound an alarm if the temperature
@@ -213,33 +224,41 @@ killProcess() {
 
 # Main Loop
 # Define the list of available options
-options=("Memory Status" "CPU Temperature" "List Processes" "Stop Process" "Exit")
+options=(
+	"$(echo -e "${YELLOW}Memory Status${RESET}")"
+	"$(echo -e "${YELLOW}CPU Temperature${RESET}")"
+	"$(echo -e "${YELLOW}List Processes${RESET}")"
+	"$(echo -e "${YELLOW}Stop Process${RESET}")"
+	"$(echo -e "${YELLOW}Go Back to Main Menu${RESET}")"
+)
+# Print the main menu
+echo -e "${PURPLE}SYSTEM STATUS${RESET}\n"
 
 # Customise the input prompt
-PS3="Please select an option: "
+PS3=$(echo -e -n "${GREEN}\nPlease select an option: ${RESET}")
 
 # Print a menu containing all available options and request the user to choose
 select option in "${options[@]}"
 do
 	# Execute the appropriate action according to the user's choice
 	case "$option" in
-		"Memory Status")
+		"${options[0]}")
 			getMemoryStatus
 			;;
-		"CPU Temperature")
+		"${options[1]}")
 			checkCPUTemperature 
 			;;
-		"List Processes")
+		"${options[2]}")
 			listProcesses
 			;;
-		"Stop Process")
+		"${options[3]}")
 			killProcess
 			;;
-		"Exit")
+		"${options[4]}")
 			exit 0
 			;;
 		*)
-			echo "Invalid option!"
+			echo -e "\n${RED}Please enter a valid option!${RESET}"
 			;;
 	esac
 	# Make the REPLY variable empty to force the select statement to reprint the menu
