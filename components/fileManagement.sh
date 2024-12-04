@@ -37,7 +37,7 @@ findFileInHomeDir(){
 displayTenLargestFiles(){
    echo "${CYAN}10 Largest Files ${RESET}"
    echo "${PURPLE}SIZE (MB) | FULL PATH OF THE FILE ${RESET}"
-	find "$1" -type f ! -path "$1/$username/.dbus" -exec stat --format="%s %n" {} + 2>/dev/null | sort -rh | head
+	find "$1" -type f ! -path "$1/$username/.dbus" -exec ls -1shH {} + 2>/dev/null | sort -rh | head
 }
 
 #• Display the 10 oldest files in the user's home directory.
