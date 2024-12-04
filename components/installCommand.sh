@@ -13,7 +13,7 @@ check_and_install_command() {
    # Check if the command is already installed
    if command -v "$command_name" &>/dev/null; then
    	echo "The command '$command_name' is already installed."
-	return 0
+	exit 0
    fi
 
 	echo "The command '$command_name' is not installed. Installing it now..."
@@ -39,17 +39,18 @@ check_and_install_command() {
    # Verify if the installation was successful
    if command -v "$command_name" &>/dev/null; then
    	echo "'$command_name' has been successfully installed."
+	exit 0
    else
 	echo "Error: Failed to install '$command_name'. Please check your permissions."
    	exit 1
    fi
 }
 
-   # Main script logic
-   if [ -z "$1" ]; then
-   	echo "Usage: $0 <command_name>"
-	exit 1
-   fi
+# Main script logic
+if [ -z "$1" ]; then
+   echo "Usage: $0 <command_name>"
+   exit 1
+fi
 
 # Call the function with the provided command name
 check_and_install_command "$1"
