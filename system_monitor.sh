@@ -30,26 +30,32 @@ mainMenu() {
 			"${options[0]}") # System Status
 				echo "" 
 				bash components/systemStatus.sh
+				echo ""
 				;;
 			"${options[1]}") # Backup File
 				echo "" 
 				bash components/backup.sh
+				echo "" 
 				;;
 			"${options[2]}") # Network
 				echo "" 
 				bash components/Network.sh
+				echo "" 
 				;;
 			"${options[3]}") # System Services
 				echo "" 
 				bash components/services.sh
+				echo "" 
 				;;
 			"${options[4]}") # User Management
 				echo "" 
 				bash components/UserManagement.sh;
+				echo "" 
 				;;
 			"${options[5]}") # File management
 				echo "" 
 				bash components/fileManagement.sh;
+				echo "" 
 				;;
 			"${options[6]}") # Exit the script
 				echo -e "\n${YELLOW}See you later, user!${RESET}"
@@ -61,6 +67,7 @@ mainMenu() {
 		esac
 		# Reprint the menu
 		REPLY=
+		echo -e "${GREEN}MAIN MENU${RESET}\n"
 	done
 }
 
