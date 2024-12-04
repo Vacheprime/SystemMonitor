@@ -121,10 +121,13 @@ if id "$username" &>/dev/null; then
 	while true; do
 	# Prompt the user with message asking to choose an option in the file management program
 	PS3="${BLUE}Please select an option: ${RESET}"
-	select option in "Search For a File" "Find the 10 Largest Files" "Find the 10 Oldest Files" "Send File as An Email Attachment" "Exit";
+	select option in "Go Back to Menu" "Search For a File" "Find the 10 Largest Files" "Find the 10 Oldest Files" "Send File as An Email Attachment" "Exit";
 
 	    do
 	    	 case $option in
+			"Go Back to Menu")
+				exit 0
+				;;
 			"Search For a File")
 				findFileInHomeDir "$home_dir"
 				break
