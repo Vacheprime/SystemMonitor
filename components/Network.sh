@@ -1,6 +1,5 @@
      #!/bin/bash
 echo -e "\e[1;34m Welcome to the Network Menu \e[0m"
-echo -e "\e[1;34m Enter an option number"
 select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
         do
                 case $options in
