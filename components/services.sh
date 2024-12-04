@@ -1,5 +1,16 @@
 #!/bin/bash
 
+## COLOR CONSTANTS
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+PURPLE='\e[35m'
+CYAN='\e[36m'
+RESET='\e[0m'
+##
+
+# Stop a service
 function stopService() {
     echo -e "\nAll active services: \n"
     # Get all active services
@@ -24,6 +35,7 @@ function stopService() {
     echo ""
 }
 
+# Start a service
 startService() {
     echo -e "\nAll inactive services: \n"
     # Get all inactive services
@@ -48,21 +60,29 @@ startService() {
     echo ""
 }
 
-PS3=$'\nSelect an option: '
-select option in "Show Current Services" "Stop a Service" "Start a Service" "Go Back to Main Menu"
+echo -e "SERVICE MANAGEMENT\n"
+options=(
+    "$(echo -e "${YELLOW}Show Current Services${RESET}")"
+    "$(echo -e "${YELLOW}Stop a Service${RESET}")"
+    "$(echo -e "${YELLOW}Start a Service${RESET}")"
+    "$(echo -e "${YELLOW}Go Back to Main Menu${RESET}")"
+)
+prompt=$(echo -e -n "\n${CYAN}Select an option: ${RESET}")
+PS3="$prompt"
+select option in "${options[@]}"
 do
     case "$option" in 
-	"Show Current Services")
+	"${options[0]}")
 	    # List all active services
-	    systemctl list-units --state=active --type=service | less -S
+	    systemctl list-units --state=active --type=service | less -S -R
 	    ;;
-	"Start a Service")
+	"${options[1]}")
 	    startService
 	    ;;
-	"Stop a Service")
+	"${options[2]}")
 	    stopService
 	    ;;
-	"Go Back to Main Menu")
+	"${options[3]}")
 	    exit 0
 	    ;;
 	*)
