@@ -343,6 +343,7 @@ options=(
 )
 
 # Customise the input prompt
+echo -e "${PURPLE}BACKUP MANAGEMENT${RESET}\n"
 PS3=$(echo -e -n "\n${GREEN}Please select an option: ${RESET}")
 
 # Print a menu containing all available options

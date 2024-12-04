@@ -11,10 +11,10 @@ RESET='\e[0m'
 
 # Function for CMD1 Submenu
 mainMenu() {
-	echo -e "\n${GREEN}MAIN MENU${RESET}"
+	echo -e "\n${GREEN}MAIN MENU${RESET}\n"
 	
 	# Color the prompt
-	PS3=$(echo -e "${CYAN}Choose an option: ${RESET}")
+	PS3=$(echo -e "\n${CYAN}Choose an option: ${RESET}")
 	# Color the options
 	options=(
 		"$(echo -e "${YELLOW}System Status Information${RESET}")"
