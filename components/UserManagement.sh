@@ -1,43 +1,63 @@
 #!/bin/bash
-
+        echo -e "\e[1;34m Welcome to the User Management App "
 select option in addUser giveRootPermission deleteUser showUsers disconnectUser showUserGroups changeUserGroups Exit
 do
 
         case $option in
         addUser)
-        echo "enter Username"
+        echo -e "\e[1;37menter Username: \e[0m"
         read name
         sudo useradd  $name 2> /dev/null
-        echo "enter User password"
-        sudo passwd $name
+        echo "enter User password twice: "
+        sudo passwd $name 2> /dev/null
         if [ $? -ne 0 ]
         then
-        echo "input was invalid"
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
         else
-        echo "User $name has been added"
+        echo -e "\e[1;32m\n User $name has been added \n\e[0m"
         fi
+        echo -e "\e[1;34m ____________________________ "
+        echo -e "\e[1;34m Enter another Option Number | "
+        echo -e "\e[1;34m ---------------------------- "
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>
         ;;
         giveRootPermission)
-        echo "Enter Username"
+        echo -e "\e[1;37m\nEnter Username"
         read name
-        echo "$name ALL=(ALL:ALL) ALL" | sudo tee -a /etc/sudoers > /dev/null
-        ;;
+        sudo usermod -a -G root $name 2> /dev/null
+        if [ $? -ne 0 ]
+        then
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
+        else
+        echo -e "\e[1;32m\n User $name has been given root permissons \n\e[0m"
+        fi
+        echo -e "\e[1;34m ____________________________"
+        echo -e "\e[1;34m Enter another Option Number |"
+        echo -e "\e[1;34m ----------------------------"
+        echo -e "\e[1;34m 1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermi>        ;;
         deleteUser)
         echo "Enter Username"
         read name
         sudo userdel -f $name 2> /dev/null
         if [ $? -ne 0 ]
         then
-        echo "input was invalid"
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
         else
-        echo "User $name has been deleted"
+        echo -e "\e[1;32m\n User $name has been removed \n\e[0m"
         fi
-        ;;
+        echo -e "\e[1;34m ____________________________ "
+        echo -e "\e[1;34m Enter another Option Number | "
+        echo -e "\e[1;34m ---------------------------- "
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>        ;;
 
         showUsers)
+        echo -e "\e[1;37m"
         who|awk '{print $1}'
+        echo -e "\e[1;34m ___________________________"
+        echo -e "\e[1;34m Enter another Option Number|"
+        echo -e "\e[1;34m ---------------------------"
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>        ;;
         ;;
-
         disconnectUser)
         who -u
         echo "Enter user code"
@@ -45,10 +65,14 @@ do
         kill $code 2> /dev/null
         if [ $? -ne 0 ]
         then
-        echo "input was invalid"
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
         else
-        echo "User has been disconnected"
+        echo -e "\e[1;32m\n User $name has been disconnected  \n\e[0m"
         fi
+        echo -e "\e[1;34m ___________________________"
+        echo -e "\e[1;34m Enter another Option Number|"
+        echo -e "\e[1;34m ---------------------------"
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>        ;;
         ;;
         changeUserGroups)
         echo "Enter the current Group"
@@ -58,15 +82,48 @@ do
         sudo groupmod $group1  $group2 2> /dev/null
         if [ $? -ne 0 ]
         then
-        echo "input was invalid"
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
         else
-        echo " $group1 groups have been changed"
+        echo -e "\e[1;32m\n User $name group has beem changed  \n\e[0m"
         fi
-
+        echo -e "\e[1;34m ___________________________"
+        echo -e "\e[1;34m Enter another Option Number|"
         ;;
+        disconnectUser)
+        who -u
+        echo "Enter user code"
+ read code
+        kill $code 2> /dev/null
+        if [ $? -ne 0 ]
+        then
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
+        else
+        echo -e "\e[1;32m\n User $name has been disconnected  \n\e[0m"
+        fi
+        echo -e "\e[1;34m ___________________________"
+        echo -e "\e[1;34m Enter another Option Number|"
+        echo -e "\e[1;34m ---------------------------"
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>        ;;
+        changeUserGroups)
+        echo "Enter the current Group"
+        read group1
+        echo "Enter the new Group"
+        read group2
+        sudo groupmod $group1  $group2 2> /dev/null
+        if [ $? -ne 0 ]
+        then
+        echo -e "\e[1;31m\n input was invalid \n\e[0m"
+        else
+        echo -e "\e[1;32m\n User $name group has beem changed  \n\e[0m"
+        fi
+        echo -e "\e[1;34m ___________________________"
+        echo -e "\e[1;34m Enter another Option Number|"
+        echo -e "\e[1;34m ---------------------------"
+        echo -e "\e[1;34m1) addUser             3) deleteUser          5) disconnectUser      7) changeUserGroups\n2) giveRootPermis>        ;;
         Exit)
         break
-        ;;
+           ;;
 
         esac
 done
+
