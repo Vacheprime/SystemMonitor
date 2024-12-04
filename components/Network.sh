@@ -92,6 +92,7 @@ select options in ShowList Disable Enable SetIPaddress SelectNetwork Exit
                 ;;
 
                 Exit)
+			echo -n -e "\e[0m"
                 break
                 ;;
          esac
