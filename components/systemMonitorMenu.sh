@@ -17,14 +17,41 @@ submenu() {
         options=("Go Back to Main Menu" "System Status" "Backup" "Network" "Services" "User Management" "File Management" "Exit")
         select option in "${options[@]}"; do
             case $REPLY in
-                1) return ;;  			  	  		# Return to Main Menu
-		2) ./ ;;						# System Status
-		3) # Backup File
-		4) ./Network.sh						# Network
-		5) # System Services
-		6) ./UserManagement.sh
-		7) ./fileManagement.sh
-                8) exit 0 ;;  						# Exit the script
+                "Go back to Main Menu")
+		   return
+		   ;;
+		"System Status")
+		   chmod 770 systemStatus.sh
+		   ./systemStatus.sh
+		   break
+		   ;;
+		"Backup")
+		   chmod 770 backup.sh
+		   ./backup.sh
+		   break
+		   ;;
+		"Network")
+		   chmod 770 Network.sh
+		   ./Network.sh
+		   break
+		   ;;
+		"Services")
+		   chmod 770 services.sh
+		   ./services.sh
+		   break
+		   ;;
+		"User Management")
+   		   chmod 770 UserManagement.sh
+		   ./UserManagement.sh
+		   break
+		   ;;
+		"File Management")
+		   chmod 770 fileManagement.sh
+		   ./fileManagement.sh
+		   break
+		   ;;
+                "Exit") exit 0
+		   ;;
                 *) echo -e "${RED}Invalid option. Try again.${RESET}"; break ;;
             esac
         done
