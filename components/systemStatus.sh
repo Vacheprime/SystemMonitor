@@ -115,7 +115,7 @@ listProcessesMinimal() {
 	)
 	# Combine the pids and command name and display as columns
 	echo ""
-	paste -d' ' <(echo -e -n "$coloredPids") <(echo -e "$commandNames")  | column -c 80 | sed 's/\*//g' | column
+	paste -d' ' <(echo -e -n "$coloredPids") <(echo -e "$commandNames")  | column | sed 's/\*//g' 
 	echo -e "\n${RED}RED = ROOT ${YELLOW}YELLOW = OTHER USER ${GREEN}GREEN = CURRENT USER${RESET}"
 	echo -e "${RESET}"
 }
