@@ -175,6 +175,13 @@ function createNewBackupSchedule() {
 			return 1
 		fi
 	fi
+	# The rsync command is required to do incremental backups and 
+	# must be installed
+	echo ""
+	if ! bash installCommand.sh rsync; then
+	    echo -e "\nCould not install the 'rsync' command!\n"
+	    return 1
+	fi
 
 	# Check if user has write permissions
 	if [[ -w "$absFilePath" && -w "$absFolderPath" ]]; then
@@ -241,7 +248,7 @@ function displayCurrentBackupSchedules() {
 			backupTimes=""
 			for file in $backupFiles
 			do
-				time=$(sudo stat --format='%y' "$file")
+				time=$(sudo stat --format='%y' "$file" 2>&1)
 				if [ $? -ne 0 ]; then
 					backupTimes+="Never."
 				else
@@ -291,7 +298,7 @@ function displayCurrentBackupSchedules() {
 		backupTimes=""
 		for file in $backupFiles
 		do
-			time=$(stat --format='%y' "$file")
+			time=$(stat --format='%y' "$file" 2>&1)
 			if [ $? -ne 0 ]; then
 				backupTimes+="Never."
 			else
