@@ -1,5 +1,15 @@
 #!/bin/bash
 
+## COLOR CONSTANTS
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+PURPLE='\e[35m'
+CYAN='\e[36m'
+RESET='\e[0m'
+##
+
 # Backup Functions
 
 # Helper method used to validate the day of the month param
@@ -72,44 +82,44 @@ function validateMonthDay() {
 # Create a new backup schedule 
 function createNewBackupSchedule() {
 	# Get all of the required user input
-	echo -e "\n--- File and Backup Folder Paths ---\n"
-	echo -e -n "\tEnter the absolute file path of file to backup: "
+	echo -e "\n${PURPLE}--- File and Backup Folder Paths ---${RESET}\n"
+	echo -e -n "\t${CYAN}Enter the absolute file path of file to backup: ${RESET}"
 	read absFilePath
 
-	echo -e -n "\tEnter the absolute folder path of the backup destination: "
+	echo -e -n "\t${CYAN}Enter the absolute folder path of the backup destination: ${RESET}"
 	read absFolderPath
 
-	echo -e "\n--- Schedule Date and Time ---\n"
-	echo -e -n "\tEnter the hour at which to backup (0 - 23 or * for every hour): "
+	echo -e "\n${PURPLE}--- Schedule Date and Time ---${RESET}\n"
+	echo -e -n "\t${CYAN}Enter the hour at which to backup (0 - 23 or * for every hour): ${RESET}"
 	read hour
 
-	echo -e -n "\tEnter the minute at which to backup (0 - 59 or * for every minute): "
+	echo -e -n "\t${CYAN}Enter the minute at which to backup (0 - 59 or * for every minute): ${RESET}"
 	read minute
 
-	echo -e -n "\tEnter the month at which to backup (1 - 12 or * for every month): "
+	echo -e -n "\t${CYAN}Enter the month at which to backup (1 - 12 or * for every month): ${RESET}"
 	read month
 
-	echo -e -n "\tEnter the day of the month at which to backup (1 - 31 or * for every day of the month): "
+	echo -e -n "\t${CYAN}Enter the day of the month at which to backup (1 - 31 or * for every day of the month): ${RESET}"
 	read monthDay
 
-	echo -e -n "\tEnter the day of the week at which to backup (0 - 7, 0 and 7 are Sunday or * for every week day): "
+	echo -e -n "\t${CYAN}Enter the day of the week at which to backup (0 - 7, 0 and 7 are Sunday or * for every week day): ${RESET}"
 	read weekDay
 
 	# Validate the file path of the file to backup
 	if ! [[ "$absFilePath" =~ ^/ ]]; then
-		echo -e "\nThe file path must be an absolute file path!\n"
+		echo -e "\n${RED}The file path must be an absolute file path!${RESET}\n"
 		return 1
 	elif ! [[ -f "$absFilePath" ]]; then
-		echo -e "\nThe file to backup specified does not exist!\n"
+		echo -e "\n${RED}The file to backup specified does not exist!${RESET}\n"
 		return 1
 	fi
 
 	# Validate the folder path 
 	if ! [[ "$absFolderPath" =~ ^/ ]]; then
-		echo -e "\nThe folder path must be an absolute folder path!\n"
+		echo -e "\n${RED}The folder path must be an absolute folder path!${RESET}\n"
 		return 1
 	elif ! [[ -d "$absFolderPath" ]]; then
-		echo -e -n "\nThe folder specified does not exist!\n"
+		echo -e -n "\n${RED}The folder specified does not exist!${RESET}\n"
 		return 1
 	fi
 
@@ -120,66 +130,66 @@ function createNewBackupSchedule() {
 
 	# Validate the hour
 	if ! [[ "$hour" =~ ^[0-9]+$|^\*$ ]]; then
-		echo -e "\nYou must enter a number for the hour!\n"
+		echo -e "\n${RED}You must enter a number for the hour!${RESET}\n"
 		return 1
 	elif [[ "$hour" != "*" ]]; then
 		if [[ $hour -lt 0 || $hour -gt 23 ]]; then
-			echo -e "\nThe hour must be between 0 and 23!\n"
+			echo -e "\n${RED}The hour must be between 0 and 23!${RESET}\n"
 			return 1
 		fi
 	fi
 
 	# Validate the minute
 	if ! [[ "$minute" =~ ^[0-9]+$|^\*$ ]]; then
-		echo -e "\nYou must enter a number for the minute!\n"
+		echo -e "\n${RED}You must enter a number for the minute!${RESET}\n"
 		return 1
 	elif [[ "$minute" != "*" ]]; then
 		if [[ $minute -lt 0 || $minute -gt 59 ]]; then
-			echo -e "\nThe minute must be between 0 and 59!\n"
+			echo -e "\n${RED}The minute must be between 0 and 59!${RESET}\n"
 			return 1
 		fi
 	fi
 
 	# Validate the month
 	if ! [[ "$month" =~ ^[0-9]+$|^\*$ ]]; then
-		echo -e "\nYou must enter a number for the month!\n"
+		echo -e "\n${RED}You must enter a number for the month!${RESET}\n"
 		return 1
 	elif [[ "$month" != "*" ]]; then
 		if [[ $month -lt 1 || $month -gt 12 ]]; then
-			echo -e "\nThe month must be between 1 and 12!\n"
+			echo -e "\n${RED}The month must be between 1 and 12!${RESET}\n"
 			return 1
 		fi
 	fi
 
 	# Validate the week day
 	if ! [[ "$weekDay" =~ ^[0-9]+$|^\*$ ]]; then
-		echo -e "\nYou must enter a number for the week day!\n"
+		echo -e "\n${RED}You must enter a number for the week day!${RESET}\n"
 		return 1
 	elif [[ "$weekDay" != "*" ]]; then
 		if [[ $weekDay -lt 0 || $weekDay -gt 7 ]]; then
-			echo -e "\nThe week day must be between 0 and 7!\n"
+			echo -e "\n${RED}The week day must be between 0 and 7!${RESET}\n"
 			return 1
 		fi
 	fi
 
 	# Validate the month day
 	if ! [[ "$monthDay" =~ ^[0-9]+$|^\*$ ]]; then
-		echo -e "\nYou must enter a number for the month day!\n"
+		echo -e "\n${RED}You must enter a number for the month day!${RESET}\n"
 		return 1
 	elif [[ "$weekDay" != "*" ]]; then
 		if [[ $monthDay -lt 1 ]]; then
-			echo -e "\nThe month day must be between 0 and 31!\n"
+			echo -e "\n${RED}The month day must be between 0 and 31!${RESET}\n"
 			return 1
 		elif ! validateMonthDay $month $monthDay; then
-			echo -e "\nThe month day is invalid for the month specified!\n"
+			echo -e "\n${RED}The month day is invalid for the month specified!${RESET}\n"
 			return 1
 		fi
 	fi
 	# The rsync command is required to do incremental backups and 
 	# must be installed
 	echo ""
-	if ! bash installCommand.sh rsync; then
-	    echo -e "\nCould not install the 'rsync' command!\n"
+	if ! bash installCommand.sh "rsync"; then
+	    echo -e "\n${RED}Could not install the 'rsync' command!${RESET}\n"
 	    return 1
 	fi
 
@@ -188,30 +198,31 @@ function createNewBackupSchedule() {
 		((crontab -l; echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUp \"$absFilePath\" \"$absFolderPath\"") | crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
-			echo -e "\nFailed to create the backup scheduled!\n"
+			echo -e "\n${RED}Failed to create the backup scheduled!${RESET}\n"
 			return 1
 		fi
 	else
-		echo "The current user does not have permission to write to the file and the folder."
-		read -p "Would you like to schedule backup on the root account's scheduler? [y/n]: " doTry
+		echo -e "${YELLOW}The current user does not have permission to write to the file and the folder."
+		echo -e -n "Would you like to schedule backup on the root account's scheduler?${RESET} [${GREEN}y${RESET}/${RED}n${RESET}]: "
+		read doTry
 		if [ "$doTry" != "y" ]; then
-			echo -e "The operation has been cancelled!\n"
+			echo -e "${YELLOW}The operation has been cancelled!${RESET}\n"
 			return 1
 		fi
 		# Add the backup job to the root's crontab
 		((sudo crontab -l; sudo echo "$minute $hour $monthDay $month $weekDay echo \"SYSBACKUP\" &> /dev/null; rsync -cLUp \"$absFilePath\" \"$absFolderPath\"") | sudo crontab -) &> /dev/null
 		# Check if it executed successfully
 		if [[ $? -eq 1 ]]; then
-			echo -e "\nFailed to create the backup scheduled!\n"
+			echo -e "\n${RED}Failed to create the backup scheduled!${RESET}\n"
 			return 1
 		fi
 	fi
-	echo -e "\nSuccessfully added backup schedule!\n"
+	echo -e "\n${GREEN}Successfully added backup schedule!${RESET}\n"
 }
 
 # Display the current backup schedules created by the system
 function displayCurrentBackupSchedules() {
-	echo -e "\nVIEWING BACKUP SCHEDULES\n"
+	echo -e "\n${PURPLE}VIEWING BACKUP SCHEDULES${RESET}\n"
 	# Get the backup schedules for this user
 	userSchedules=$(
 		crontab -l |
@@ -219,8 +230,9 @@ function displayCurrentBackupSchedules() {
 	)
 
 	# Prompt the user if he wants to see root backups
-	echo "The current user does not have the privileges to view root backup schedules."
-	read -p "Would you like to view backup schedules of the root account? [y/n]: " doTry
+	echo -e "${YELLOW}The current user does not have the privileges to view root backup schedules."
+	echo -e -n "Would you like to view backup schedules of the root account?${RESET} [${GREEN}y${RESET}/${RED}n${RESET}]: "
+	read doTry
 	if [ "$doTry" == "y" ]; then
 		# Get the backup schedules created as root
 		rootSchedules=$(sudo crontab -l 2>&1)
@@ -265,13 +277,13 @@ function displayCurrentBackupSchedules() {
 			rootSchedules=$(paste <(echo "$rootSchedules") <(echo "$backupTimes") -d" " 2> /dev/null)
 
 			# Print the root schedules
-			echo "$rootSchedules" | awk '{ printf "\n(Root) Schedule %d:\nFile to backup: %s\nBackup Location: %s\nLast backup time: %s\n", NR, $12, $13, $14 }'
+			echo "$rootSchedules" | awk '{ printf "\n\033[36m(\033[31mRoot\033[36m) Schedule \033[32m%d\033[36m:\nFile to backup: \033[33m%s\n\033[36mBackup Location: \033[33m%s\n\033[36mLast backup time: \033[33m%s\n\033[0m", NR, $12, $13, $14 }'
 		else
 			# Check if the root account has no crontab or if authentication failed.
 			if [ "$rootSchedules" == "no crontab for root" ]; then
-				echo -e "\nNo backup schedules set for root."
+				echo -e "\nNo backup schedules set for root.${RESET}"
 			else
-				echo -e "\nCould not fetch backups created as root."
+				echo -e "\nCould not fetch backups created as root.${RESET}"
 			fi
 		fi
 	fi
@@ -315,35 +327,39 @@ function displayCurrentBackupSchedules() {
 		userSchedules=$(paste <(echo "$userSchedules") <(echo "$backupTimes") -d" " 2> /dev/null)
 
 		# Print the user schedules
-		echo "$userSchedules" | awk '{ printf "\n(User) Schedule %d:\nFile to backup: %s\nBackup Location: %s\nLast backup time: %s\n", NR, $12, $13, $14 }'
+		echo "$userSchedules" | awk '{ printf "\n\033[36m(\033[32mUser\033[36m) Schedule \033[32m%d\033[36m:\nFile to backup: \033[33m%s\n\033[36mBackup Location: \033[33m%s\n\033[36mLast backup time: \033[33m%s\n\033[0m", NR, $12, $13, $14 }'
 	else
-		echo -e "\nNo backup schedules set for user."
+		echo -e "\nNo backup schedules set for user.${RESET}"
 	fi
 	echo ""
 }
 
 # Main Loop
 # Define the list of available options
-options=("Create New Backup Schedule" "Display Current Backup Schedules" "Go Back to Main Menu")
+options=(
+	"$(echo -e "${YELLOW}Create New Backup Schedule${RESET}")"
+	"$(echo -e "${YELLOW}Display Current Backup Schedules${RESET}")"
+	"$(echo -e "${YELLOW}Go Back to Main Menu${RESET}")"
+)
 
 # Customise the input prompt
-PS3=$'\nPlease select an option: '
+PS3=$(echo -e -n "\n${GREEN}Please select an option: ${RESET}")
 
 # Print a menu containing all available options
 select option in "${options[@]}"; 
 do
 	case $option in
-		"Create New Backup Schedule")
+		"${options[0]}")
 			createNewBackupSchedule
 			;;
-		"Display Current Backup Schedules")
+		"${options[1]}")
 			displayCurrentBackupSchedules
 			;;
-		"Go Back to Main Menu")
+		"${options[2]}")
 			exit 0
 			;;
 		*)
-			echo -e "\nInvalid Option!"
+			echo -e "\n${RED}Invalid Option!${RESET}\n"
 			;;
 	esac
 	REPLY=
