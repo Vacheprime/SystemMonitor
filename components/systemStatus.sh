@@ -31,7 +31,7 @@ function getMemoryStatus() {
 checkCPUTemperature () {
 	# Finding the CPU temperature requires the 'inxi' command
 	# Check if 'inxi' is installed first
-	if ! bash installCommand.sh "inxi"; then
+	if ! bash components/installCommand.sh "inxi"; then
 		echo -e "${RED}\nCould not install the 'inxi' command used to check CPU temperature!${RESET}"
 		return 1
 	fi
