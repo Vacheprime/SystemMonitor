@@ -31,8 +31,8 @@ function getMemoryStatus() {
 checkCPUTemperature () {
 	# Finding the CPU temperature requires the 'inxi' command
 	# Check if 'inxi' is installed first
-	if ! which inxi > /dev/null; then
-		echo "Error: The 'inxi' command must be installed to check the CPU temperature!"
+	if ! bash installCommand.sh "inxi"; then
+		echo -e "${RED}\nCould not install the 'inxi' command used to check CPU temperature!${RESET}"
 		return 1
 	fi
 	# The 'inxi -s' command is used to display the temperature of the CPU and GPU
@@ -44,16 +44,17 @@ checkCPUTemperature () {
 	# Define the CPU temperature limit
 	limit=70
 	# Display the CPU temperature
-	echo "The CPU temperature is at $temp°C"
+	echo -e "\n${CYAN}The CPU temperature is at ${YELLOW}$temp°C${RESET}"
 	# Use 'bc' to compare decimal numbers
 	if [ $(echo "$temp > $limit" | bc ) -eq 1 ]; then
-		echo "[WARNING] The CPU temperature is greater than $limit°C!"
+		echo -e "\n${RED}[WARNING] The CPU temperature is greater than $limit°C!${RESET}"
 		# Beeping noise code taken from https://unix.stackexchange.com/questions/1974/how-do-i-make-my-pc-speaker-beep
 		for i in $(seq 0 3); do
-			$( speaker-test -c2 -t sine -f 1000 & pid=$! ; sleep 0.1s ; kill -9 $pid) &> /dev/null
+			$( speaker-test -c2 -t sine -f 1000 && pid=$! && sleep 0.1s && kill -9 $pid ) &> /dev/null
 			sleep 0.1s
 		done
 	fi
+	echo ""
 }
 
 # List currently active processes
