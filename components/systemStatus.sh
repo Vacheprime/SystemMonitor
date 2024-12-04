@@ -81,23 +81,43 @@ getAllKillableProcesses() {
 # Extract the list of all killable process Ids
 getKillableProcessIds() {
 	# $1 corresponds to the list of processes	
-	echo "$1" | awk '{printf "%s\n", $2}'
+	echo "$1" | awk '{printf "%s|%s\n", $2, $1}'
 }
 
 # List the currently active processes in a minimal fashion for the killProcess function
 listProcessesMinimal() {
 	# $0 corresponds to the list of killable processes
-	pids=$(getKillableProcessIds "$1")
+	userPids=($(getKillableProcessIds "$1"))
+	currentUser=$(whoami)
+
+	# Color the pids
+	coloredPids=""
+	for userPid in "${userPids[@]}"
+	do
+		user=$(echo "$userPid" | cut -d "|" -f 2)
+		pid=$(echo "$userPid" | cut -d "|" -f 1)
+		if [[ "$user" == "$currentUser" ]]; then
+			coloredPids+="${GREEN}*$pid${RESET}\n"
+		elif [[ "$user" == "root" ]]; then
+			coloredPids+="${RED}*$pid${RESET}\n"
+		else
+			coloredPids+="${YELLOW}*$pid${RESET}\n"
+		fi
+	done
+	coloredPids=$(echo -n "$coloredPids")
+	# Color the pids
 	# Extract the list of all command names without the full path
 	# and without any arguments to keep the interface clean
 	commandNames=$(
 		echo "$1" |
 		awk '{printf "%s\n", $11}' | # Extract column 11, command names
-		grep -Po '(?<=/)[^/]+?$|^[^/]+?$' # Extract the command names without full path
+		grep -Po '(?<=/)[^/]+?$|^[^/]+?$'  # Extract the command names without full path
 	)
 	# Combine the pids and command name and display as columns
-	paste -d' ' <(echo -e "$pids") <(echo -e "$commandNames") | column 
 	echo ""
+	paste -d' ' <(echo -e -n "$coloredPids") <(echo -e "$commandNames")  | column -c 80 | sed 's/\*//g' | column
+	echo -e "\n${RED}RED = ROOT ${YELLOW}YELLOW = OTHER USER ${GREEN}GREEN = CURRENT USER${RESET}"
+	echo -e "${RESET}"
 }
 
 # Kill a process
@@ -115,11 +135,12 @@ killProcess() {
 	cuid=$(id -u)
 
 	# Read the process ID from the user
-	read -p "Enter the ID of the process you would like to stop: " processID
+	echo -e -n "${CYAN}Enter the ID of the process you would like to stop: ${RESET}"
+	read processID
 
 	# Check if user input is valid
 	if ! [[ "$processID" =~ ^[0-9]+$ ]]; then
-		echo -e "You must enter a valid PID!\n"
+		echo -e "\n${RED}You must enter a valid PID!${RESET}\n"
 		return 1
 	fi
 
@@ -132,7 +153,7 @@ killProcess() {
 	done
 
 	if [[ "$isPresent" -eq 0 ]]; then
-		echo -e "You must enter a PID from the list of killable processes!\n"
+		echo -e "\n${RED}You must enter a PID from the list of killable processes!${RESET}\n"
 		return 1
 	fi
 
@@ -140,7 +161,7 @@ killProcess() {
 	if ! ps --pid "$processID" &> /dev/null; then
 		# Notify the user that the processID entered does not 
 		# correspond to an active process
-		echo -e "The process with id $processID has already terminated!\n"
+		echo -e "\n${GREEN}The process with id $processID has already terminated!${RESET}\n"
 		return 1
 	fi
 
@@ -149,73 +170,81 @@ killProcess() {
 	# for the UserID
 	# --pid selects the process based on process ID
 	# The 'awk' command is used to retrieve the UserID
+	echo ""
+	signalOptions=(
+		"$(echo -e "${YELLOW}Forceful Kill${RESET}")"
+		"$(echo -e "${YELLOW}Graceful Kill${RESET}")"
+		"$(echo -e "${YELLOW}Cancel${RESET}")"
+	)
 	puid=$(ps -f n --pid "$processID" | awk 'NR==2 {print $1}')
-	select signalOpt in "Forceful Kill" "Graceful Kill" "Cancel"
+	select signalOpt in "${signalOptions[@]}"
 	do
-		case $signalOpt in
-			"Forceful Kill")
+		case "$signalOpt" in
+			"${signalOptions[0]}")
 				if [ $cuid -eq $puid ]; then
 					# The 'kill' command is used to stop a process
 					# The -9 option is used to specify signal 9, SIGKILL, which
 					# forcefully kills a process
 					kill -9 $processID
 					if ! ps "$processID" > /dev/null; then
-						echo -e "The process has been forcefully killed!\n"
+						echo -e "${GREEN}\nThe process has been forcefully killed!${RESET}\n"
 					else
-						echo -e "The process could not be killed!\n"
+						echo -e "${RED}The process could not be killed!${RESET}\n"
 					fi
 				else
-					echo "The current user does not have permission to kill this process."
-					read -p "Would you like to try with root permissions? [y/n]: " doTry
+					echo -e "\n${YELLOW}The current user does not have permission to kill this process."
+					echo -e -n "Would you like to try with root permissions?${RESET} [${GREEN}y${RESET}/${RED}n${RESET}]: "
+					read doTry
 					if [ "$doTry" != "y" ]; then
-						echo -e "The operation has been cancelled!\n"
+						echo -e "\n${YELLOW}The operation has been cancelled!${RESET}\n"
 						break
 					fi
 
 					sudo kill -9 $processID
 					if ! ps "$processID" > /dev/null; then
-						echo -e "The process has been forcefully killed!\n"
+						echo -e "\n${GREEN}The process has been forcefully killed!${RESET}\n"
 					else
-						echo -e "The process could not be killed!\n"
+						echo -e "\n${RED}The process could not be killed!${RESET}\n"
 					fi
 				fi
 				break
 				;;
-			"Graceful Kill")
+			"${signalOptions[1]}")
 				if [ $cuid -eq $puid ]; then
 					# The -15 option is used to specify signal 15, SIGTERM which
 					# gracefully kills a process
 					kill -15 $processID
 					if ! ps "$processID" > /dev/null; then
-						echo -e "The process has been gracefully killed!\n"
+						echo -e "\n${GREEN}The process has been gracefully killed!${RESET}\n"
 					else
-						echo -e "The process could not be killed!\n"
+						echo -e "\n${RED}The process could not be killed!${RESET}\n"
 					fi
 				else
-					echo "The current user does not have permission to kill this process."
-					read -p "Would you like to try with root permissions? [y/n]: " doTry
+					echo -e "\n${YELLOW}The current user does not have permission to kill this process."
+					echo -e -n "Would you like to try with root permissions?${RESET} [${GREEN}y${RESET}/${RED}n${RESET}]: "
+					read doTry
 					if [ "$doTry" != "y" ]; then
-						echo -e "The operation has been cancelled!\n"
+						echo -e "\n${YELLOW}The operation has been cancelled!${RESET}\n"
 						break
 					fi
 
 					sudo kill -15 $processID
 					if ! ps "$processID" > /dev/null; then
-						echo -e "The process has been gracefully killed!\n"
+						echo -e "\n${GREEN}The process has been gracefully killed!${RESET}\n"
 					else
-						echo -e "The process could not be killed!\n"
+						echo -e "\n${RED}The process could not be killed!${RESET}\n"
 					fi
 				fi
 				break
 				;;
-			"Cancel")
+			"${signalOptions[2]}")
 				# Cancel the operation
-				echo -e "The operation has been cancelled!\n"
+				echo -e "\n${YELLOW}The operation has been cancelled!${RESET}\n"
 				break
 				;;
 			*)
 				# Notify the user of the invalid option
-				echo -e "Invalid Option!\n"
+				echo -e "\n${RED}Invalid Option!${RESET}\n"
 				;;
 		esac
 		# Make the REPLY variable empty to force the select statement to reprint the menu
@@ -259,7 +288,7 @@ do
 			exit 0
 			;;
 		*)
-			echo -e "\n${RED}Please enter a valid option!${RESET}"
+			echo -e "\n${RED}Please enter a valid option!${RESET}\n"
 			;;
 	esac
 	# Make the REPLY variable empty to force the select statement to reprint the menu
