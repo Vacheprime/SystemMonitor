@@ -27,7 +27,7 @@ function stopService() {
     read service
 
     if ! echo "$allServices" | grep -P "^$service$" &> /dev/null; then
-	echo -e "\n${RED}You must enter a service from the list of inactive services!${RESET}\n"
+	echo -e "\n${RED}You must enter a service from the list of active services!${RESET}\n"
 	return 1
     fi
     if sudo systemctl stop "$service"; then
@@ -40,30 +40,32 @@ function stopService() {
 
 # Start a service
 startService() {
-    echo -e "\nAll inactive services: \n"
+    echo -e "\n${PURPLE}All inactive services: ${RESET}\n"
     # Get all inactive services
     allServices=$(systemctl list-units --state=inactive --type=service --quiet | # list all inactive services
 	awk '$2 == "loaded" {print $1}' | # Select only those that are loaded and can be enabled
 	sed "s/.service//" # Remove trailing .service
     )
     # Display  the services as columns
+    echo -e -n "${GREEN}"
     echo -e "$allServices" | column
-    echo ""
+    echo -e -n "${RESET}"
 
-    read -p "Enter a service to start: " service
+    echo -e -n "\n${CYAN}Enter a service to start: ${RESET}"
+    read service
     if ! echo "$allServices" | grep -P "^$service$" &> /dev/null; then
-	echo -e "\nYou must enter a service from the list of active services!\n"
+	echo -e "\n${RED}You must enter a service from the list of inactive services!${RESET}\n"
 	return 1
     fi
     if sudo systemctl start "$service"; then
-	echo -e "\nService '$service' started!"
+	echo -e "\n${GREEN}Service '$service' started!${RESET}"
     else
-	echo -e "\nCould not start service '$service'!"
+	echo -e "\n${RED}Could not start service '$service'!${RESET}"
     fi
     echo ""
 }
 
-echo -e "SERVICE MANAGEMENT\n"
+echo -e "${PURPLE}SERVICE MANAGEMENT${RESET}\n"
 options=(
     "$(echo -e "${YELLOW}Show Current Services${RESET}")"
     "$(echo -e "${YELLOW}Stop a Service${RESET}")"
