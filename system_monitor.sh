@@ -10,77 +10,60 @@ CYAN='\e[36m'
 RESET='\e[0m'
 
 # Function for CMD1 Submenu
-submenu() {
-    while true; do
-        echo -e "\n${GREEN}CMD1 SUBMENU${RESET}"
-        echo -e "${CYAN}Choose an option: ${RESET}"
-        options=("Go Back to Main Menu" "System Status" "Backup" "Network" "Services" "User Management" "File Management" "Exit")
-        select option in "${options[@]}"; do
-            case $REPLY in
-                1) # Return to Main Menu
-		   return
-		   ;;
-                2) # System Status
-		   chmod 770 systemStatus.sh;
-		   ./systemStatus.sh;
-		   break
-		   ;;
-                3) # Backup File
-		   echo "Backup is being built...";
-                   break
-		   ;;
-		4) # Network
-		   chmod 770 Network.sh;
-		   ./Network.sh;
-		   break
-		   ;;
-                5) # System Services
-		   echo "System Services are being built...";
-                   break
-		   ;;
-		6) # User Management
-		   chmod 770 UserManagement.sh
-		   ./UserManagement.sh;
-		   break
-		   ;;
-                7) # File management
-		   chmod 770 fileManagement.sh
-		   ./fileManagement.sh;
-		   break
-		   ;;
-                8) # Exit the script
-		   echo -e "${YELLOW} See you later, user!${RESET}"
-		   exit 0;
-		   ;;
-                *) # Default
-		   echo -e "${RED}Invalid option. Make sure you typed the number to the corresponding option that you'd like to choose${RESET}"
-		   break
-		   ;;
-            esac
-        done
-    done
+mainMenu() {
+	echo -e "\n${GREEN}MAIN MENU${RESET}"
+	
+	# Color the prompt
+	PS3=$(echo -e "${CYAN}Choose an option: ${RESET}")
+	# Color the options
+	options=(
+		"$(echo -e "${YELLOW}System Status Information${RESET}")"
+		"$(echo -e "${YELLOW}Backup Management${RESET}")"
+		"$(echo -e "${YELLOW}Network Management${RESET}")"
+		"$(echo -e "${YELLOW}Service Management${RESET}")"
+		"$(echo -e "${YELLOW}User Management${RESET}")"
+		"$(echo -e "${YELLOW}File Management${RESET}")"
+		"$(echo -e "${YELLOW}Exit${RESET}")"
+	)
+	select option in "${options[@]}"; do
+		case "$option" in
+			"${options[0]}") # System Status
+				echo "" 
+				bash components/systemStatus.sh
+				;;
+			"${options[1]}") # Backup File
+				echo "" 
+				bash components/backup.sh
+				;;
+			"${options[2]}") # Network
+				echo "" 
+				bash components/Network.sh
+				;;
+			"${options[3]}") # System Services
+				echo "" 
+				bash components/services.sh
+				;;
+			"${options[4]}") # User Management
+				echo "" 
+				bash components/UserManagement.sh;
+				;;
+			"${options[5]}") # File management
+				echo "" 
+				bash components/fileManagement.sh;
+				;;
+			"${options[6]}") # Exit the script
+				echo -e "\n${YELLOW}See you later, user!${RESET}"
+				exit 0;
+				;;
+			*) # Default
+				echo -e "\n${RED}Invalid option. Make sure you typed the number to the corresponding option that you'd like to choose!${RESET}\n"
+				;;
+		esac
+		# Reprint the menu
+		REPLY=
+	done
 }
 
 # start?
-echo -e "${YELLOW}WELCOME TO OUR SYSTEM MONITOR!${RESET}"
-# Main Menu
-while true; do
-    echo -e "\n${PURPLE}MAIN MENU${RESET}"
-    echo -e "${CYAN}Choose an option: ${RESET}"
-    options=("CMD1" "Exit")
-    select option in "${options[@]}"; do
-        case $REPLY in
-            1) # Call the submenu
-	       submenu;
-	       break
-	       ;;
-            2) # Exit the program
-	       echo -e "${YELLOW}See you later, user!${RESET}"
-	       exit 0
-	       ;;
-            *) echo -e "${RED}Invalid option. Try again.${RESET}";
-	       break
-	       ;;
-        esac
-    done
-done
+echo -e "${PURPLE}WELCOME TO OUR SYSTEM MONITOR!${RESET}"
+mainMenu
