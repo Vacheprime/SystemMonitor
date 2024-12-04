@@ -114,7 +114,7 @@ while true; do
 		# If the username exists, get the home directory by extracting it from /etc/passwd
 		# -d option with cut command: Seperate the fields of the etc/passwd with the colon delimeter
 		# f6: extract the home directory ( which is the 6th field inside etc/passwd)
-		home_dir=$(grep "^$username:" /etc/passwd | cut -d: -f6
+		home_dir=$(grep "^$username:" /etc/passwd | cut -d: -f6)
 		# Check if the home directory exists
 		if  [ -d "$home_dir" ]; then
 			# Run this menu until the use chooses to exit
